@@ -1,0 +1,47 @@
+    <script>
+    var ct = document.querySelector('#ct')
+    var btn = document.querySelector('#load-more')
+    var curIndex = 0 //当前要加载的数据的序号
+    var isLoading = false //状态锁，用于判断是否在加载数据
+    btn.addEventListener('click',function(e){
+        e.preventDefault();
+        if(isLoading){
+            return//如果正在请求数据，那这次点击什么都不做
+        }
+        ajax('/loadMore',{
+            idx: curIndex,
+            len: len
+        },function(data){
+            isLoading = false
+            curIndex = curIndex + len
+            console.log(curIndex)
+        })
+        isLoading = true
+    })
+
+    function ajax(url,json,onSuccess,onError){
+        var xhr = new XMLHttpRequest()
+        var arr = []
+        for(key in json){
+            arr.push(key + '=' + json[key])
+        }
+        url += '?' + arr.join('&')
+        xhr.open('get',url)
+        xhr.send()
+        xhr.onload = function(){
+            if((xhr.status >= 200 && xhr.status < 300)||xhr.status ===304){
+                onSuccess(JSON.parse(this.response))
+            }else{
+                onError && onError()
+            }
+        }
+    }
+
+    function appendData(data){
+        for(var i=0; i<data.length; i++){
+            var child = document.createElement('li')
+            child.innerText = data[i]
+            ct.appendChild(child)
+        }
+    }
+    </script>
